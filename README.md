@@ -1,50 +1,48 @@
-# Welcome to your Expo app 👋
+# Weather App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A React Native weather application built with Expo that displays current weather conditions for any city.
 
-## Get started
+## Features
+
+- Search for weather by city name
+- Display current temperature, weather description, humidity, and wind speed
+- Clean and modern UI with a responsive design
+
+## Getting Started
 
 1. Install dependencies
-
    ```bash
    npm install
    ```
 
-2. Start the app
-
+2. Start the backend server
    ```bash
-    npx expo start
+   cd backend
+   npm install
+   npm start
    ```
 
-In the output, you'll find options to open the app in a
+3. Start the Expo app
+   ```bash
+   cd ..
+   npm start
+   ```
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+4. Scan the QR code with Expo Go app or run on an emulator
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Technologies Used
 
-## Get a fresh project
+- React Native
+- Expo
+- Express.js (Backend)
+- OpenWeather API
 
-When you're ready, run:
+## Project Structure
 
-```bash
-npm run reset-project
-```
+- `App.js` - Main application component
+- `backend/` - Express server for weather API
+- `assets/` - Images and other static assets
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## License
 
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+MIT
