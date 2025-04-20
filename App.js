@@ -1,174 +1,90 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, StatusBar } from 'react-native';
+import { StyleSheet, View, StatusBar, SafeAreaView, Text } from 'react-native';
+import { Provider as PaperProvider } from 'react-native-paper';
+import { colors, spacing, typography } from './styles/theme';
+import SearchBar from './components/SearchBar';
+import WeatherDisplay from './components/WeatherDisplay';
+import Loading from './components/Loading';
 
 export default function App() {
-  const [city, setCity] = useState('');
-  const [weather, setWeather] = useState(null);
+  const [weatherData, setWeatherData] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const searchWeather = async () => {
+  const fetchWeatherData = async (city) => {
     try {
-      const response = await fetch(`http://192.168.1.17:3000/api/weather?city=${city}`);
+      setIsLoading(true);
+      setError('');
+      const response = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=1b6890dd369340755b4a2b018388d6b6`
+      );
       const data = await response.json();
       
       if (response.ok) {
-        setWeather(data);
-        setError('');
+        setWeatherData(data);
       } else {
-        setError(data.message || 'Failed to fetch weather data');
-        setWeather(null);
+        setError(data.message || 'City not found');
+        setWeatherData(null);
       }
-    } catch (err) {
-      setError('Failed to connect to the server');
-      setWeather(null);
+    } catch (error) {
+      setError('Failed to fetch weather data. Please check your internet connection.');
+      setWeatherData(null);
+      console.error('Error fetching weather data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      fetchWeatherData(searchQuery);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" />
-      <View style={styles.contentContainer}>
-        <Text style={styles.title}>Weather App</Text>
-        
-        <View style={styles.searchContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter city name"
-            placeholderTextColor="rgba(255, 255, 255, 0.7)"
-            value={city}
-            onChangeText={setCity}
+    <PaperProvider>
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
+        <View style={styles.content}>
+          <SearchBar
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            onSearch={handleSearch}
           />
-          <TouchableOpacity style={styles.searchButton} onPress={searchWeather}>
-            <Text style={styles.buttonText}>Search</Text>
-          </TouchableOpacity>
-        </View>
-
-        {error ? (
-          <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>{error}</Text>
-          </View>
-        ) : null}
-
-        {weather && (
-          <View style={styles.weatherContainer}>
-            <Text style={styles.cityName}>{weather.name}</Text>
-            <Text style={styles.temperature}>{Math.round(weather.main.temp)}°C</Text>
-            <Text style={styles.description}>{weather.weather[0].description}</Text>
-            <View style={styles.detailsContainer}>
-              <View style={styles.detailItem}>
-                <Text style={styles.detailLabel}>Humidity</Text>
-                <Text style={styles.detailValue}>{weather.main.humidity}%</Text>
-              </View>
-              <View style={styles.detailItem}>
-                <Text style={styles.detailLabel}>Wind Speed</Text>
-                <Text style={styles.detailValue}>{Math.round(weather.wind.speed * 3.6)} km/h</Text>
-              </View>
+          {error ? (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>{error}</Text>
             </View>
-          </View>
-        )}
-      </View>
-    </View>
+          ) : null}
+          {isLoading ? (
+            <Loading />
+          ) : (
+            <WeatherDisplay weatherData={weatherData} />
+          )}
+        </View>
+      </SafeAreaView>
+    </PaperProvider>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1B9CFC',
+    backgroundColor: colors.background,
   },
-  contentContainer: {
+  content: {
     flex: 1,
-    padding: 20,
-  },
-  title: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: 'white',
-    textAlign: 'center',
-    marginTop: 60,
-    marginBottom: 30,
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    marginBottom: 20,
-  },
-  input: {
-    flex: 1,
-    height: 50,
-    color: 'white',
-    fontSize: 18,
-    paddingHorizontal: 15,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 10,
-    marginRight: 10,
-  },
-  searchButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    paddingHorizontal: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 10,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
   },
   errorContainer: {
-    padding: 15,
-    backgroundColor: 'rgba(255, 59, 48, 0.8)',
-    borderRadius: 10,
-    marginBottom: 20,
+    backgroundColor: colors.error,
+    padding: spacing.md,
+    margin: spacing.md,
+    borderRadius: 8,
   },
   errorText: {
     color: 'white',
     textAlign: 'center',
-    fontSize: 16,
-  },
-  weatherContainer: {
-    padding: 20,
-    borderRadius: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  cityName: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: 'white',
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-  temperature: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: 'white',
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-  description: {
-    fontSize: 20,
-    color: 'white',
-    textAlign: 'center',
-    marginBottom: 20,
-    textTransform: 'capitalize',
-  },
-  detailsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 10,
-    padding: 15,
-  },
-  detailItem: {
-    alignItems: 'center',
-  },
-  detailLabel: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.8)',
-    marginBottom: 5,
-  },
-  detailValue: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: 'white',
+    ...typography.body,
   },
 }); 
